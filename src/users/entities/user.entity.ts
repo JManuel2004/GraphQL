@@ -5,7 +5,9 @@ import {
   Column,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
+import { Project } from '../../projects/entities/project.entity';
 
 
 export enum UserRole {
@@ -61,6 +63,10 @@ export class User {
     default: true,
   })
   isActive: boolean;
+
+  @Field(() => [Project], { nullable: true })
+  @OneToMany(() => Project, (project) => project.user)
+  projects?: Project[];
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -1,0 +1,374 @@
+{
+	"info": {
+		"_postman_id": "graphql-api-collection",
+		"name": "GraphQL API - Proyectos",
+		"description": "Colección para probar la API GraphQL del proyecto",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.register) {",
+									"        pm.test(\"Usuario registrado correctamente\", function () {",
+									"            pm.expect(response.data.register).to.have.property('id');",
+									"            pm.expect(response.data.register).to.have.property('email');",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation Register($registerInput: RegisterInput!) {\n  register(registerInput: $registerInput) {\n    id\n    email\n    fullname\n    role\n    isActive\n  }\n}",
+								"variables": "{\n  \"registerInput\": {\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"fullname\": \"Usuario de Prueba\",\n    \"role\": \"USUARIO\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.login) {",
+									"        const token = response.data.login.token;",
+									"        pm.environment.set(\"jwt_token\", token);",
+									"        pm.test(\"Login exitoso y token guardado\", function () {",
+									"            pm.expect(token).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation Login($loginInput: LoginInput!) {\n  login(loginInput: $loginInput) {\n    token\n    user {\n      id\n      email\n      fullname\n      role\n      isActive\n    }\n  }\n}",
+								"variables": "{\n  \"loginInput\": {\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Me (Usuario Actual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query Me {\n  me {\n    id\n    email\n    fullname\n    role\n    isActive\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Renew Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query RenewToken {\n  renewToken {\n    token\n    user {\n      id\n      email\n    }\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "Create Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.createProject) {",
+									"        const projectId = response.data.createProject.id;",
+									"        pm.environment.set(\"project_id\", projectId);",
+									"        pm.test(\"Proyecto creado correctamente\", function () {",
+									"            pm.expect(projectId).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateProject($createProjectInput: CreateProjectInput!) {\n  createProject(createProjectInput: $createProjectInput) {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n    user {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"createProjectInput\": {\n    \"title\": \"Mi Proyecto GraphQL\",\n    \"description\": \"Descripción del proyecto de prueba\",\n    \"status\": \"PENDING\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Projects",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllProjects {\n  projects {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Project By ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetProject($id: ID!) {\n  project(id: $id) {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n    user {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateProject($id: ID!, $updateProjectInput: UpdateProjectInput!) {\n  updateProject(id: $id, updateProjectInput: $updateProjectInput) {\n    id\n    title\n    description\n    status\n    updatedAt\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id}}\",\n  \"updateProjectInput\": {\n    \"title\": \"Proyecto Actualizado\",\n    \"description\": \"Nueva descripción\",\n    \"status\": \"IN_PROGRESS\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteProject($id: ID!) {\n  deleteProject(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "project_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+

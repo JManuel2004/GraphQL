@@ -7,6 +7,21 @@ type AuthResponse {
   user: User!
 }
 
+input CreateProjectInput {
+  description: String
+  status: ProjectStatus
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DeleteProjectResponse {
+  message: String!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -17,6 +32,12 @@ type MessageResponse {
 }
 
 type Mutation {
+  """Crear un nuevo proyecto"""
+  createProject(createProjectInput: CreateProjectInput!): Project!
+
+  """Eliminar un proyecto"""
+  deleteProject(id: ID!): DeleteProjectResponse!
+
   """Iniciar sesión y obtener token JWT"""
   login(loginInput: LoginInput!): AuthResponse!
 
@@ -25,11 +46,37 @@ type Mutation {
 
   """Registrar un nuevo usuario en el sistema"""
   register(registerInput: RegisterInput!): User!
+
+  """Actualizar un proyecto existente"""
+  updateProject(id: ID!, updateProjectInput: UpdateProjectInput!): Project!
+}
+
+type Project {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  status: ProjectStatus!
+  title: String!
+  updatedAt: DateTime!
+  user: User
+}
+
+"""Estados disponibles para proyectos"""
+enum ProjectStatus {
+  COMPLETED
+  IN_PROGRESS
+  PENDING
 }
 
 type Query {
   """Obtener información del usuario autenticado"""
   me: User!
+
+  """Obtener un proyecto por su ID"""
+  project(id: ID!): Project!
+
+  """Obtener todos los proyectos del usuario autenticado"""
+  projects: [Project!]!
 
   """Verificar token actual y obtener uno nuevo"""
   renewToken: AuthResponse!
@@ -42,11 +89,18 @@ input RegisterInput {
   role: UserRole
 }
 
+input UpdateProjectInput {
+  description: String
+  status: ProjectStatus
+  title: String
+}
+
 type User {
   email: String!
   fullname: String!
   id: ID!
   isActive: Boolean!
+  projects: [Project!]
   role: UserRole!
 }
 
