@@ -1,0 +1,57 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  token: String!
+  user: User!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type MessageResponse {
+  message: String!
+}
+
+type Mutation {
+  """Iniciar sesión y obtener token JWT"""
+  login(loginInput: LoginInput!): AuthResponse!
+
+  """Cerrar sesión (eliminar token del lado del cliente)"""
+  logout: MessageResponse!
+
+  """Registrar un nuevo usuario en el sistema"""
+  register(registerInput: RegisterInput!): User!
+}
+
+type Query {
+  """Obtener información del usuario autenticado"""
+  me: User!
+
+  """Verificar token actual y obtener uno nuevo"""
+  renewToken: AuthResponse!
+}
+
+input RegisterInput {
+  email: String!
+  fullname: String!
+  password: String!
+  role: UserRole
+}
+
+type User {
+  email: String!
+  fullname: String!
+  id: ID!
+  isActive: Boolean!
+  role: UserRole!
+}
+
+"""Roles disponibles para usuarios"""
+enum UserRole {
+  SUPERADMIN
+  USUARIO
+}
