@@ -13,12 +13,26 @@ input CreateProjectInput {
   title: String!
 }
 
+input CreateTaskInput {
+  assignedToId: String
+  description: String
+  dueDate: String
+  priority: TaskPriority
+  projectId: String!
+  status: TaskStatus
+  title: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
 type DeleteProjectResponse {
+  message: String!
+}
+
+type DeleteTaskResponse {
   message: String!
 }
 
@@ -35,8 +49,14 @@ type Mutation {
   """Crear un nuevo proyecto"""
   createProject(createProjectInput: CreateProjectInput!): Project!
 
+  """Crear una nueva tarea"""
+  createTask(createTaskInput: CreateTaskInput!): Task!
+
   """Eliminar un proyecto"""
   deleteProject(id: ID!): DeleteProjectResponse!
+
+  """Eliminar una tarea"""
+  deleteTask(id: ID!): DeleteTaskResponse!
 
   """Iniciar sesión y obtener token JWT"""
   login(loginInput: LoginInput!): AuthResponse!
@@ -49,6 +69,9 @@ type Mutation {
 
   """Actualizar un proyecto existente"""
   updateProject(id: ID!, updateProjectInput: UpdateProjectInput!): Project!
+
+  """Actualizar una tarea existente"""
+  updateTask(id: ID!, updateTaskInput: UpdateTaskInput!): Task!
 }
 
 type Project {
@@ -56,6 +79,7 @@ type Project {
   description: String
   id: ID!
   status: ProjectStatus!
+  tasks: [Task!]
   title: String!
   updatedAt: DateTime!
   user: User
@@ -80,6 +104,15 @@ type Query {
 
   """Verificar token actual y obtener uno nuevo"""
   renewToken: AuthResponse!
+
+  """Obtener una tarea por su ID"""
+  task(id: ID!): Task!
+
+  """Obtener todas las tareas del usuario autenticado"""
+  tasks: [Task!]!
+
+  """Obtener todas las tareas de un proyecto específico"""
+  tasksByProject(projectId: ID!): [Task!]!
 }
 
 input RegisterInput {
@@ -89,13 +122,51 @@ input RegisterInput {
   role: UserRole
 }
 
+type Task {
+  assignedTo: User
+  createdAt: DateTime!
+  description: String
+  dueDate: DateTime
+  id: ID!
+  priority: TaskPriority!
+  project: Project
+  status: TaskStatus!
+  title: String!
+  updatedAt: DateTime!
+}
+
+"""Prioridades disponibles para tareas"""
+enum TaskPriority {
+  HIGH
+  LOW
+  MEDIUM
+}
+
+"""Estados disponibles para tareas"""
+enum TaskStatus {
+  CANCELLED
+  COMPLETED
+  IN_PROGRESS
+  PENDING
+}
+
 input UpdateProjectInput {
   description: String
   status: ProjectStatus
   title: String
 }
 
+input UpdateTaskInput {
+  assignedToId: String
+  description: String
+  dueDate: String
+  priority: TaskPriority
+  status: TaskStatus
+  title: String
+}
+
 type User {
+  assignedTasks: [Task!]
   email: String!
   fullname: String!
   id: ID!

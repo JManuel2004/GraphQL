@@ -9,6 +9,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Task } from '../../tasks/entities/task.entity';
 
 export enum ProjectStatus {
   PENDING = 'pending',
@@ -56,6 +57,10 @@ export class Project {
 
   @Column()
   userId: string;
+
+  @Field(() => [Task], { nullable: true })
+  @OneToMany(() => Task, (task) => task.project)
+  tasks?: Task[];
 
   @Field(() => Date)
   @CreateDateColumn()

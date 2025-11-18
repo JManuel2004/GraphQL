@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "graphql-api-collection",
-		"name": "GraphQL API - Proyectos",
-		"description": "Colección para probar la API GraphQL del proyecto",
+		"name": "GraphQL API - Proyectos y Tareas",
+		"description": "Colección para probar la API GraphQL del proyecto (Auth, Projects y Tasks)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -351,6 +351,222 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "Create Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.createTask) {",
+									"        const taskId = response.data.createTask.id;",
+									"        pm.environment.set(\"task_id\", taskId);",
+									"        pm.test(\"Tarea creada correctamente\", function () {",
+									"            pm.expect(taskId).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateTask($createTaskInput: CreateTaskInput!) {\n  createTask(createTaskInput: $createTaskInput) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    project {\n      id\n      title\n    }\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"createTaskInput\": {\n    \"title\": \"Mi Primera Tarea\",\n    \"description\": \"Descripción de la tarea de prueba\",\n    \"status\": \"PENDING\",\n    \"priority\": \"MEDIUM\",\n    \"projectId\": \"{{project_id}}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Tasks",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllTasks {\n  tasks {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    updatedAt\n    project {\n      id\n      title\n    }\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Tasks By Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetTasksByProject($projectId: ID!) {\n  tasksByProject(projectId: $projectId) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"projectId\": \"{{project_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Task By ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetTask($id: ID!) {\n  task(id: $id) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    updatedAt\n    project {\n      id\n      title\n      description\n    }\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"id\": \"{{task_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Task",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateTask($id: ID!, $updateTaskInput: UpdateTaskInput!) {\n  updateTask(id: $id, updateTaskInput: $updateTaskInput) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    updatedAt\n  }\n}",
+								"variables": "{\n  \"id\": \"{{task_id}}\",\n  \"updateTaskInput\": {\n    \"title\": \"Tarea Actualizada\",\n    \"description\": \"Nueva descripción\",\n    \"status\": \"IN_PROGRESS\",\n    \"priority\": \"HIGH\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{task_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
 		}
 	],
 	"variable": [
@@ -366,6 +582,11 @@
 		},
 		{
 			"key": "project_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "task_id",
 			"value": "",
 			"type": "string"
 		}

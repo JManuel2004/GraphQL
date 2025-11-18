@@ -15,6 +15,7 @@ La colección usa variables para facilitar el uso:
 - `base_url`: `http://localhost:3000` (ya configurado)
 - `jwt_token`: Se guarda automáticamente después del login
 - `project_id`: Se guarda automáticamente después de crear un proyecto
+- `task_id`: Se guarda automáticamente después de crear una tarea
 
 ### Variables de Entorno (Opcional):
 Puedes crear un entorno en Postman con estas variables:
@@ -36,9 +37,19 @@ Puedes crear un entorno en Postman con estas variables:
 6. **Update Project** - Actualiza un proyecto
 7. **Delete Project** - Elimina un proyecto
 
+### 3. Tareas
+8. **Create Task** - Crea una nueva tarea
+   - Requiere un `project_id` válido
+   - El ID de la tarea se guarda automáticamente en `task_id`
+9. **Get All Tasks** - Lista todas las tareas del usuario
+10. **Get Tasks By Project** - Lista todas las tareas de un proyecto específico
+11. **Get Task By ID** - Obtiene una tarea específica
+12. **Update Task** - Actualiza una tarea
+13. **Delete Task** - Elimina una tarea
+
 ## 🔐 Autenticación
 
-Todas las requests de **Projects** requieren autenticación. El token JWT se envía automáticamente en el header `Authorization: Bearer {{jwt_token}}`.
+Todas las requests de **Projects** y **Tasks** requieren autenticación. El token JWT se envía automáticamente en el header `Authorization: Bearer {{jwt_token}}`.
 
 **Nota:** Asegúrate de ejecutar **Login** primero para obtener el token.
 
@@ -88,6 +99,53 @@ query GetAllProjects {
 }
 ```
 
+### Create Task
+```graphql
+mutation CreateTask {
+  createTask(createTaskInput: {
+    title: "Mi Tarea"
+    description: "Descripción de la tarea"
+    status: PENDING
+    priority: MEDIUM
+    projectId: "ID_DEL_PROYECTO"
+  }) {
+    id
+    title
+    status
+    priority
+  }
+}
+```
+
+### Get All Tasks
+```graphql
+query GetAllTasks {
+  tasks {
+    id
+    title
+    description
+    status
+    priority
+    project {
+      id
+      title
+    }
+  }
+}
+```
+
+### Get Tasks By Project
+```graphql
+query GetTasksByProject {
+  tasksByProject(projectId: "ID_DEL_PROYECTO") {
+    id
+    title
+    status
+    priority
+  }
+}
+```
+
 ## 🐛 Troubleshooting
 
 ### Error: "Unauthorized"
@@ -98,14 +156,44 @@ query GetAllProjects {
 - Verifica que el `project_id` esté correcto
 - Asegúrate de haber creado un proyecto primero
 
+### Error: "Task not found"
+- Verifica que el `task_id` esté correcto
+- Asegúrate de haber creado una tarea primero
+
+### Error: "No tienes permiso para agregar tareas a este proyecto"
+- Verifica que el proyecto pertenezca al usuario autenticado
+- Solo puedes agregar tareas a tus propios proyectos (o ser superadmin)
+
 ### Error: "Connection refused"
 - Verifica que el servidor esté corriendo en `http://localhost:3000`
 - Revisa que Docker Compose esté activo
 
-## 📚 Estados de Proyecto
+## 📚 Estados y Prioridades
 
+### Estados de Proyecto
 Los proyectos pueden tener los siguientes estados:
 - `PENDING` - Pendiente
 - `IN_PROGRESS` - En progreso
 - `COMPLETED` - Completado
+
+### Estados de Tarea
+Las tareas pueden tener los siguientes estados:
+- `PENDING` - Pendiente
+- `IN_PROGRESS` - En progreso
+- `COMPLETED` - Completada
+- `CANCELLED` - Cancelada
+
+### Prioridades de Tarea
+Las tareas pueden tener las siguientes prioridades:
+- `LOW` - Baja
+- `MEDIUM` - Media (por defecto)
+- `HIGH` - Alta
+
+## 🔗 Relaciones
+
+- **Proyecto → Tareas**: Un proyecto puede tener múltiples tareas
+- **Tarea → Proyecto**: Cada tarea pertenece a un proyecto
+- **Tarea → Usuario**: Una tarea puede estar asignada a un usuario (opcional)
+- **Usuario → Proyectos**: Un usuario puede tener múltiples proyectos
+- **Usuario → Tareas Asignadas**: Un usuario puede tener múltiples tareas asignadas
 

@@ -8,6 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Project } from '../../projects/entities/project.entity';
+import { Task } from '../../tasks/entities/task.entity';
 
 
 export enum UserRole {
@@ -67,6 +68,10 @@ export class User {
   @Field(() => [Project], { nullable: true })
   @OneToMany(() => Project, (project) => project.user)
   projects?: Project[];
+
+  @Field(() => [Task], { nullable: true })
+  @OneToMany(() => Task, (task) => task.assignedTo)
+  assignedTasks?: Task[];
 
   @BeforeInsert()
   @BeforeUpdate()
