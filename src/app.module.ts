@@ -40,6 +40,7 @@ import { SeedModule } from './seed/seed.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
+        uuid: 'uuid',
         autoLoadEntities: true,
         synchronize: true, 
         logging: false,
