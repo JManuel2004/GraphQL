@@ -1,11 +1,63 @@
 {
 	"info": {
 		"_postman_id": "graphql-api-collection",
-		"name": "GraphQL API - Proyectos y Tareas",
-		"description": "Colección para probar la API GraphQL del proyecto (Auth, Projects y Tasks)",
+		"name": "GraphQL API - CRUD + Permisos",
+		"description": "Colección para probar la API GraphQL del proyecto con validaciones de permisos (Auth, Users, Projects y Tasks)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "Seed",
+			"item": [
+				{
+					"name": "Initial data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.seed) {",
+									"        pm.test(\"Seed ejecutado correctamente\", function () {",
+									"            pm.expect(response.data.seed).to.have.property('message');",
+									"            pm.expect(response.data.seed).to.have.property('data');",
+									"            pm.expect(response.data.seed.data.users).to.be.at.least(1);",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query Seed {\n  seed {\n    message\n    data {\n      users\n      projects\n      tasks\n    }\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
+		},
 		{
 			"name": "Auth",
 			"item": [
@@ -57,7 +109,7 @@
 					}
 				},
 				{
-					"name": "Login",
+					"name": "Login - Admin",
 					"event": [
 						{
 							"listen": "test",
@@ -67,8 +119,9 @@
 									"    const response = pm.response.json();",
 									"    if (response.data && response.data.login) {",
 									"        const token = response.data.login.token;",
-									"        pm.environment.set(\"jwt_token\", token);",
-									"        pm.test(\"Login exitoso y token guardado\", function () {",
+									"        pm.collectionVariables.set(\"admin_token\", token);",
+									"        pm.collectionVariables.set(\"jwt_token\", token);",
+									"        pm.test(\"Login admin exitoso\", function () {",
 									"            pm.expect(token).to.not.be.empty;",
 									"        });",
 									"    }",
@@ -90,7 +143,103 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation Login($loginInput: LoginInput!) {\n  login(loginInput: $loginInput) {\n    token\n    user {\n      id\n      email\n      fullname\n      role\n      isActive\n    }\n  }\n}",
-								"variables": "{\n  \"loginInput\": {\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n  }\n}"
+								"variables": "{\n  \"loginInput\": {\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"{{admin_password}}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - User1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.login) {",
+									"        const token = response.data.login.token;",
+									"        pm.collectionVariables.set(\"user1_token\", token);",
+									"        pm.test(\"Login user1 exitoso\", function () {",
+									"            pm.expect(token).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation Login($loginInput: LoginInput!) {\n  login(loginInput: $loginInput) {\n    token\n    user {\n      id\n      email\n      fullname\n      role\n      isActive\n    }\n  }\n}",
+								"variables": "{\n  \"loginInput\": {\n    \"email\": \"{{user1_email}}\",\n    \"password\": \"{{user1_password}}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login - User2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.login) {",
+									"        const token = response.data.login.token;",
+									"        pm.collectionVariables.set(\"user2_token\", token);",
+									"        pm.test(\"Login user2 exitoso\", function () {",
+									"            pm.expect(token).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation Login($loginInput: LoginInput!) {\n  login(loginInput: $loginInput) {\n    token\n    user {\n      id\n      email\n      fullname\n      role\n      isActive\n    }\n  }\n}",
+								"variables": "{\n  \"loginInput\": {\n    \"email\": \"{{user2_email}}\",\n    \"password\": \"{{user2_password}}\"\n  }\n}"
 							}
 						},
 						"url": {
@@ -172,7 +321,7 @@
 			"name": "Projects",
 			"item": [
 				{
-					"name": "Create Project",
+					"name": "Create Project (user1)",
 					"event": [
 						{
 							"listen": "test",
@@ -182,7 +331,8 @@
 									"    const response = pm.response.json();",
 									"    if (response.data && response.data.createProject) {",
 									"        const projectId = response.data.createProject.id;",
-									"        pm.environment.set(\"project_id\", projectId);",
+									"        pm.collectionVariables.set(\"project_id_user1\", projectId);",
+									"        pm.collectionVariables.set(\"project_id\", projectId);",
 									"        pm.test(\"Proyecto creado correctamente\", function () {",
 									"            pm.expect(projectId).to.not.be.empty;",
 									"        });",
@@ -202,14 +352,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation CreateProject($createProjectInput: CreateProjectInput!) {\n  createProject(createProjectInput: $createProjectInput) {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n    user {\n      id\n      email\n      fullname\n    }\n  }\n}",
-								"variables": "{\n  \"createProjectInput\": {\n    \"title\": \"Mi Proyecto GraphQL\",\n    \"description\": \"Descripción del proyecto de prueba\",\n    \"status\": \"PENDING\"\n  }\n}"
+								"variables": "{\n  \"createProjectInput\": {\n    \"title\": \"Proyecto User1\",\n    \"description\": \"Descripción del proyecto\",\n    \"status\": \"PENDING\"\n  }\n}"
 							}
 						},
 						"url": {
@@ -224,7 +374,27 @@
 					}
 				},
 				{
-					"name": "Get All Projects",
+					"name": "Create Project (user2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.createProject) {",
+									"        const projectId = response.data.createProject.id;",
+									"        pm.collectionVariables.set(\"project_id_user2\", projectId);",
+									"        pm.test(\"Proyecto user2 creado\", function () {",
+									"            pm.expect(projectId).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -234,7 +404,91 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user2_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateProject($createProjectInput: CreateProjectInput!) {\n  createProject(createProjectInput: $createProjectInput) {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n    user {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"createProjectInput\": {\n    \"title\": \"Proyecto User2\",\n    \"description\": \"Descripción del proyecto\",\n    \"status\": \"PENDING\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Project to delete (user1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.createProject) {",
+									"        const projectId = response.data.createProject.id;",
+									"        pm.collectionVariables.set(\"project2_id_user1\", projectId);",
+									"        pm.test(\"Proyecto para eliminar creado\", function () {",
+									"            pm.expect(projectId).to.not.be.empty;",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user1_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateProject($createProjectInput: CreateProjectInput!) {\n  createProject(createProjectInput: $createProjectInput) {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n    user {\n      id\n      email\n      fullname\n    }\n  }\n}",
+								"variables": "{\n  \"createProjectInput\": {\n    \"title\": \"Proyecto2 User1\",\n    \"description\": \"Proyecto para eliminar\",\n    \"status\": \"PENDING\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Projects (user1)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
@@ -255,7 +509,7 @@
 					}
 				},
 				{
-					"name": "Get Project By ID",
+					"name": "Get Project By ID (user1 -> own)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -265,14 +519,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "query GetProject($id: ID!) {\n  project(id: $id) {\n    id\n    title\n    description\n    status\n    createdAt\n    updatedAt\n    user {\n      id\n      email\n      fullname\n    }\n  }\n}",
-								"variables": "{\n  \"id\": \"{{project_id}}\"\n}"
+								"variables": "{\n  \"id\": \"{{project_id_user1}}\"\n}"
 							}
 						},
 						"url": {
@@ -287,7 +541,7 @@
 					}
 				},
 				{
-					"name": "Update Project",
+					"name": "Update Project (user1 -> own)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -297,14 +551,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation UpdateProject($id: ID!, $updateProjectInput: UpdateProjectInput!) {\n  updateProject(id: $id, updateProjectInput: $updateProjectInput) {\n    id\n    title\n    description\n    status\n    updatedAt\n  }\n}",
-								"variables": "{\n  \"id\": \"{{project_id}}\",\n  \"updateProjectInput\": {\n    \"title\": \"Proyecto Actualizado\",\n    \"description\": \"Nueva descripción\",\n    \"status\": \"IN_PROGRESS\"\n  }\n}"
+								"variables": "{\n  \"id\": \"{{project_id_user1}}\",\n  \"updateProjectInput\": {\n    \"title\": \"Proyecto User1 Editado\",\n    \"description\": \"Nueva descripción\",\n    \"status\": \"IN_PROGRESS\"\n  }\n}"
 							}
 						},
 						"url": {
@@ -319,7 +573,7 @@
 					}
 				},
 				{
-					"name": "Delete Project",
+					"name": "Delete Project (user1 -> own)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -329,14 +583,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation DeleteProject($id: ID!) {\n  deleteProject(id: $id) {\n    message\n  }\n}",
-								"variables": "{\n  \"id\": \"{{project_id}}\"\n}"
+								"variables": "{\n  \"id\": \"{{project2_id_user1}}\"\n}"
 							}
 						},
 						"url": {
@@ -356,7 +610,7 @@
 			"name": "Tasks",
 			"item": [
 				{
-					"name": "Create Task",
+					"name": "Create Task (user1 on project1)",
 					"event": [
 						{
 							"listen": "test",
@@ -366,7 +620,8 @@
 									"    const response = pm.response.json();",
 									"    if (response.data && response.data.createTask) {",
 									"        const taskId = response.data.createTask.id;",
-									"        pm.environment.set(\"task_id\", taskId);",
+									"        pm.collectionVariables.set(\"task_id_user1\", taskId);",
+									"        pm.collectionVariables.set(\"task_id\", taskId);",
 									"        pm.test(\"Tarea creada correctamente\", function () {",
 									"            pm.expect(taskId).to.not.be.empty;",
 									"        });",
@@ -386,14 +641,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation CreateTask($createTaskInput: CreateTaskInput!) {\n  createTask(createTaskInput: $createTaskInput) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    project {\n      id\n      title\n    }\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}",
-								"variables": "{\n  \"createTaskInput\": {\n    \"title\": \"Mi Primera Tarea\",\n    \"description\": \"Descripción de la tarea de prueba\",\n    \"status\": \"PENDING\",\n    \"priority\": \"MEDIUM\",\n    \"projectId\": \"{{project_id}}\"\n  }\n}"
+								"variables": "{\n  \"createTaskInput\": {\n    \"title\": \"Tarea user1\",\n    \"description\": \"Descripción de la tarea\",\n    \"status\": \"PENDING\",\n    \"priority\": \"MEDIUM\",\n    \"projectId\": \"{{project_id_user1}}\"\n  }\n}"
 							}
 						},
 						"url": {
@@ -408,7 +663,7 @@
 					}
 				},
 				{
-					"name": "Get All Tasks",
+					"name": "Get All Tasks (user1)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -418,7 +673,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
@@ -439,7 +694,7 @@
 					}
 				},
 				{
-					"name": "Get Tasks By Project",
+					"name": "Get Tasks By Project (user1)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -449,14 +704,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "query GetTasksByProject($projectId: ID!) {\n  tasksByProject(projectId: $projectId) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}",
-								"variables": "{\n  \"projectId\": \"{{project_id}}\"\n}"
+								"variables": "{\n  \"projectId\": \"{{project_id_user1}}\"\n}"
 							}
 						},
 						"url": {
@@ -471,7 +726,7 @@
 					}
 				},
 				{
-					"name": "Get Task By ID",
+					"name": "Get Task By ID (user1 -> own)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -481,14 +736,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "query GetTask($id: ID!) {\n  task(id: $id) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    createdAt\n    updatedAt\n    project {\n      id\n      title\n      description\n    }\n    assignedTo {\n      id\n      email\n      fullname\n    }\n  }\n}",
-								"variables": "{\n  \"id\": \"{{task_id}}\"\n}"
+								"variables": "{\n  \"id\": \"{{task_id_user1}}\"\n}"
 							}
 						},
 						"url": {
@@ -503,7 +758,7 @@
 					}
 				},
 				{
-					"name": "Update Task",
+					"name": "Update Task (user1 -> own)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -513,14 +768,14 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation UpdateTask($id: ID!, $updateTaskInput: UpdateTaskInput!) {\n  updateTask(id: $id, updateTaskInput: $updateTaskInput) {\n    id\n    title\n    description\n    status\n    priority\n    dueDate\n    updatedAt\n  }\n}",
-								"variables": "{\n  \"id\": \"{{task_id}}\",\n  \"updateTaskInput\": {\n    \"title\": \"Tarea Actualizada\",\n    \"description\": \"Nueva descripción\",\n    \"status\": \"IN_PROGRESS\",\n    \"priority\": \"HIGH\"\n  }\n}"
+								"variables": "{\n  \"id\": \"{{task_id_user1}}\",\n  \"updateTaskInput\": {\n    \"title\": \"Tarea user1 Editada\",\n    \"description\": \"Nueva descripción\",\n    \"status\": \"IN_PROGRESS\",\n    \"priority\": \"HIGH\"\n  }\n}"
 							}
 						},
 						"url": {
@@ -535,7 +790,7 @@
 					}
 				},
 				{
-					"name": "Delete Task",
+					"name": "Delete Task (user1 -> own)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -545,14 +800,590 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{user1_token}}"
 							}
 						],
 						"body": {
 							"mode": "graphql",
 							"graphql": {
 								"query": "mutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    message\n  }\n}",
-								"variables": "{\n  \"id\": \"{{task_id}}\"\n}"
+								"variables": "{\n  \"id\": \"{{task_id_user1}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users (Admin Only)",
+			"item": [
+				{
+					"name": "List Users (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.users) {",
+									"        const users = response.data.users;",
+									"        const u1 = users.find(u => u.email === pm.collectionVariables.get('user1_email'));",
+									"        if (u1) { pm.collectionVariables.set('user1_id', u1.id); }",
+									"        const u2 = users.find(u => u.email === pm.collectionVariables.get('user2_email'));",
+									"        if (u2) { pm.collectionVariables.set('user2_id', u2.id); }",
+									"        pm.test(\"Lista de usuarios obtenida\", function () {",
+									"            pm.expect(users).to.be.an('array');",
+									"        });",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllUsers {\n  users {\n    id\n    email\n    fullname\n    role\n    isActive\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User by Id (admin -> user1)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetUser($id: ID!) {\n  user(id: $id) {\n    id\n    email\n    fullname\n    role\n    isActive\n  }\n}",
+								"variables": "{\n  \"id\": \"{{user1_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update User (admin -> user2)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateUser($id: ID!, $updateUserInput: UpdateUserInput!) {\n  updateUser(id: $id, updateUserInput: $updateUserInput) {\n    id\n    email\n    fullname\n    role\n    isActive\n  }\n}",
+								"variables": "{\n  \"id\": \"{{user2_id}}\",\n  \"updateUserInput\": {\n    \"fullname\": \"Usuario Dos Editado\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete User (admin -> user2)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteUser($id: ID!) {\n  deleteUser(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{user2_id}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Permissions (Forbidden cases)",
+			"item": [
+				{
+					"name": "User2 DELETE Project of User1 → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 (GraphQL always returns 200)\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"if (response.errors) {",
+									"    pm.test(\"Error de permisos recibido\", function () {",
+									"        const hasForbidden = response.errors.some(e => e.message.includes('permiso') || e.message.includes('Forbidden'));",
+									"        pm.expect(hasForbidden).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user2_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteProject($id: ID!) {\n  deleteProject(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id_user1}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "User1 DELETE Project of User2 → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"if (response.errors) {",
+									"    pm.test(\"Error de permisos recibido\", function () {",
+									"        const hasForbidden = response.errors.some(e => e.message.includes('permiso') || e.message.includes('Forbidden'));",
+									"        pm.expect(hasForbidden).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user1_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteProject($id: ID!) {\n  deleteProject(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id_user2}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "User2 DELETE Task of User1 → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"if (response.errors) {",
+									"    pm.test(\"Error de permisos recibido\", function () {",
+									"        const hasForbidden = response.errors.some(e => e.message.includes('permiso') || e.message.includes('Forbidden'));",
+									"        pm.expect(hasForbidden).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user2_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{task_id_user1}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "User1 UPDATE Project of User2 → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"if (response.errors) {",
+									"    pm.test(\"Error de permisos recibido\", function () {",
+									"        const hasForbidden = response.errors.some(e => e.message.includes('permiso') || e.message.includes('Forbidden'));",
+									"        pm.expect(hasForbidden).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user1_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateProject($id: ID!, $updateProjectInput: UpdateProjectInput!) {\n  updateProject(id: $id, updateProjectInput: $updateProjectInput) {\n    id\n    title\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id_user2}}\",\n  \"updateProjectInput\": {\n    \"title\": \"Hack Title\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "User2 UPDATE Task of User1 → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"if (response.errors) {",
+									"    pm.test(\"Error de permisos recibido\", function () {",
+									"        const hasForbidden = response.errors.some(e => e.message.includes('permiso') || e.message.includes('Forbidden'));",
+									"        pm.expect(hasForbidden).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user2_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateTask($id: ID!, $updateTaskInput: UpdateTaskInput!) {\n  updateTask(id: $id, updateTaskInput: $updateTaskInput) {\n    id\n    title\n  }\n}",
+								"variables": "{\n  \"id\": \"{{task_id_user1}}\",\n  \"updateTaskInput\": {\n    \"title\": \"Hack Task\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "User1 List Users → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"if (response.errors) {",
+									"    pm.test(\"Error de permisos recibido\", function () {",
+									"        const hasForbidden = response.errors.some(e => e.message.includes('administrador') || e.message.includes('Forbidden'));",
+									"        pm.expect(hasForbidden).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user1_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllUsers {\n  users {\n    id\n    email\n    fullname\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin Overrides",
+			"item": [
+				{
+					"name": "Admin DELETE Project of User1 → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"pm.test(\"Admin puede eliminar proyecto de otro usuario\", function () {",
+									"    pm.expect(response.data).to.exist;",
+									"    pm.expect(response.data.deleteProject).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteProject($id: ID!) {\n  deleteProject(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{project_id_user1}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					}
+				},
+				{
+					"name": "Admin DELETE Task of User1 → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const response = pm.response.json();",
+									"pm.test(\"Admin puede eliminar tarea de otro usuario\", function () {",
+									"    pm.expect(response.data).to.exist;",
+									"    pm.expect(response.data.deleteTask).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteTask($id: ID!) {\n  deleteTask(id: $id) {\n    message\n  }\n}",
+								"variables": "{\n  \"id\": \"{{task_id_user1}}\"\n}"
 							}
 						},
 						"url": {
@@ -587,6 +1418,81 @@
 		},
 		{
 			"key": "task_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "admin_email",
+			"value": "admin@example.com",
+			"type": "string"
+		},
+		{
+			"key": "admin_password",
+			"value": "Admin123!",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user1_email",
+			"value": "usuario1@example.com",
+			"type": "string"
+		},
+		{
+			"key": "user1_password",
+			"value": "User123!",
+			"type": "string"
+		},
+		{
+			"key": "user1_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user1_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user2_email",
+			"value": "usuario2@example.com",
+			"type": "string"
+		},
+		{
+			"key": "user2_password",
+			"value": "User123!",
+			"type": "string"
+		},
+		{
+			"key": "user2_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user2_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "project_id_user1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "project_id_user2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "project2_id_user1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "task_id_user1",
 			"value": "",
 			"type": "string"
 		}

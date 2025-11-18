@@ -36,6 +36,10 @@ type DeleteTaskResponse {
   message: String!
 }
 
+type DeleteUserResponse {
+  message: String!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -58,6 +62,9 @@ type Mutation {
   """Eliminar una tarea"""
   deleteTask(id: ID!): DeleteTaskResponse!
 
+  """Eliminar un usuario (solo superadmin)"""
+  deleteUser(id: ID!): DeleteUserResponse!
+
   """Iniciar sesión y obtener token JWT"""
   login(loginInput: LoginInput!): AuthResponse!
 
@@ -72,6 +79,9 @@ type Mutation {
 
   """Actualizar una tarea existente"""
   updateTask(id: ID!, updateTaskInput: UpdateTaskInput!): Task!
+
+  """Actualizar un usuario (solo superadmin)"""
+  updateUser(id: ID!, updateUserInput: UpdateUserInput!): User!
 }
 
 type Project {
@@ -105,6 +115,9 @@ type Query {
   """Verificar token actual y obtener uno nuevo"""
   renewToken: AuthResponse!
 
+  """Ejecutar seed para poblar la base de datos con datos iniciales"""
+  seed: SeedResponse!
+
   """Obtener una tarea por su ID"""
   task(id: ID!): Task!
 
@@ -113,6 +126,12 @@ type Query {
 
   """Obtener todas las tareas de un proyecto específico"""
   tasksByProject(projectId: ID!): [Task!]!
+
+  """Obtener un usuario por ID (solo superadmin)"""
+  user(id: ID!): User!
+
+  """Obtener todos los usuarios (solo superadmin)"""
+  users: [User!]!
 }
 
 input RegisterInput {
@@ -120,6 +139,17 @@ input RegisterInput {
   fullname: String!
   password: String!
   role: UserRole
+}
+
+type SeedData {
+  projects: Float!
+  tasks: Float!
+  users: Float!
+}
+
+type SeedResponse {
+  data: SeedData!
+  message: String!
 }
 
 type Task {
@@ -163,6 +193,14 @@ input UpdateTaskInput {
   priority: TaskPriority
   status: TaskStatus
   title: String
+}
+
+input UpdateUserInput {
+  email: String
+  fullname: String
+  isActive: Boolean
+  password: String
+  role: UserRole
 }
 
 type User {

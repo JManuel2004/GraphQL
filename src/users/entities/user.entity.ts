@@ -6,6 +6,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Project } from '../../projects/entities/project.entity';
 import { Task } from '../../tasks/entities/task.entity';
@@ -72,6 +73,9 @@ export class User {
   @Field(() => [Task], { nullable: true })
   @OneToMany(() => Task, (task) => task.assignedTo)
   assignedTasks?: Task[];
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 
   @BeforeInsert()
   @BeforeUpdate()
