@@ -1,6 +1,26 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsEmail, IsString, IsOptional, MinLength, IsEnum, IsBoolean } from 'class-validator';
+import { IsEmail, IsOptional, MinLength, IsEnum, IsBoolean, IsString } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
+
+@InputType()
+export class CreateUserInput {
+  @Field()
+  @IsEmail({}, { message: 'Debe ser un email válido' })
+  email: string;
+
+  @Field()
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  password: string;
+
+  @Field()
+  @IsString()
+  fullname: string;
+
+  @Field(() => UserRole, { nullable: true })
+  @IsOptional()
+  @IsEnum(UserRole, { message: 'El rol debe ser superadmin o usuario' })
+  role?: UserRole;
+}
 
 @InputType()
 export class UpdateUserInput {
@@ -11,13 +31,11 @@ export class UpdateUserInput {
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   password?: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
   fullname?: string;
 
   @Field(() => UserRole, { nullable: true })
@@ -30,4 +48,3 @@ export class UpdateUserInput {
   @IsBoolean()
   isActive?: boolean;
 }
-

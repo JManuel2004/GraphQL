@@ -27,6 +27,7 @@ export class ProjectsService {
     }
     return await this.projectRepository.find({
       where: { userId: user.id },
+      relations: ['user'],
     });
   }
 

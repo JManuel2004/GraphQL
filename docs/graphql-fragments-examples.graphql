@@ -1,0 +1,125 @@
+# GraphQL Fragments - Ejemplos Prácticos
+
+## Fragments Definidos
+
+```graphql
+# Información básica de usuario
+fragment UserBasic on User {
+  id
+  email
+  fullname
+  role
+  isActive
+}
+
+# Información completa de usuario
+fragment UserComplete on User {
+  ...UserBasic
+  createdAt
+  updatedAt
+}
+
+# Información básica de proyecto
+fragment ProjectBasic on Project {
+  id
+  title
+  description
+  status
+  createdAt
+  updatedAt
+}
+
+# Proyecto con información del usuario
+fragment ProjectWithUser on Project {
+  ...ProjectBasic
+  user {
+    ...UserBasic
+  }
+}
+
+# Proyecto completo con tareas
+fragment ProjectComplete on Project {
+  ...ProjectWithUser
+  tasks {
+    ...TaskBasic
+  }
+}
+
+# Información básica de tarea
+fragment TaskBasic on Task {
+  id
+  title
+  description
+  status
+  priority
+  dueDate
+  createdAt
+  updatedAt
+}
+
+# Tarea con usuario asignado
+fragment TaskWithAssignment on Task {
+  ...TaskBasic
+  assignedTo {
+    ...UserBasic
+  }
+}
+
+# Tarea completa con proyecto
+fragment TaskComplete on Task {
+  ...TaskWithAssignment
+  project {
+    ...ProjectBasic
+  }
+}
+```
+
+## Queries de Ejemplo
+
+### Usuarios
+```graphql
+fragment UserBasic on User { id email fullname role isActive }
+
+query { users { ...UserBasic } }
+```
+
+### Proyectos
+```graphql
+fragment UserBasic on User { id email fullname role isActive }
+fragment ProjectWithUser on Project {
+  id title description status createdAt updatedAt
+  user { ...UserBasic }
+}
+
+query { projects { ...ProjectWithUser } }
+```
+
+### Tareas
+```graphql
+fragment UserBasic on User { id email fullname role isActive }
+fragment TaskWithAssignment on Task {
+  id title description status priority dueDate createdAt updatedAt
+  assignedTo { ...UserBasic }
+}
+
+query { tasks { ...TaskWithAssignment } }
+```
+
+### Dashboard Completo
+```graphql
+fragment UserBasic on User { id email fullname role isActive }
+fragment ProjectWithUser on Project {
+  id title description status createdAt updatedAt
+  user { ...UserBasic }
+}
+fragment TaskWithAssignment on Task {
+  id title description status priority dueDate createdAt updatedAt
+  assignedTo { ...UserBasic }
+}
+
+query {
+  users { ...UserBasic }
+  projects { ...ProjectWithUser }
+  tasks { ...TaskWithAssignment }
+}
+```
