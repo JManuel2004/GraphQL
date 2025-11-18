@@ -44,6 +44,12 @@ import { SeedModule } from './seed/seed.module';
         autoLoadEntities: true,
         synchronize: true, 
         logging: false,
+        ssl: true,
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
       }),
     }),
 
